@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Spin for Your Recipe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff8f000;
+            font-family: 'Baloo 2', Arial, sans-serif;
+        }
+
+        /* Wooden table full-page background */
+        html {
+            background: url('static/countertop_bg04@4x.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Container for vectors over background */
+        .vector-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            /* so wheel is clickable */
+        }
+
+        /* Vector images styling */
+        .vector-layer img {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            opacity: 1;
+            transform: rotate(0deg);
+            transition: all 0.5s;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            text-align: center;
+            color: #333;
+            z-index: 10;
+
+        }
+
+        #wheelContainer {
+            position: relative;
+            width: 90vw;
+            max-width: 700px;
+            aspect-ratio: 1 / 1;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #tick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            margin: 10px;
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #f2a413;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        button:hover {
+            background-color: #d18e0f;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            min-height: 40px;
+            text-align: center;
+            padding: 0 10px;
+            z-index: 10;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="vector-layer" id="vectorLayer"></div>
+    <h1>Spin for Your Recipe</h1>
+    <div id="wheelContainer">
+        <canvas id="wheelCanvas" width="700" height="700"></canvas>
+        <div id="tick">▲</div>
+    </div>
+
+    <button id="spinBtn">Spin!</button>
+    <div id="result"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/zarocknz/javascript-winwheel/Winwheel.js"></script>
+
+    <script>
+        let wheel;
+        let spinBtn;
+        let resultDiv;
+        let isSpinning = false;
+
+        function setupWheel() {
+            const container = document.getElementById('wheelContainer');
+            const containerWidth = container.clientWidth;
+
+            const outerRadius = (containerWidth / 2) * 0.95;
+
+            const canvas = document.getElementById('wheelCanvas');
+            canvas.width = containerWidth;
+            canvas.height = containerWidth;
+
+            wheel = new Winwheel({
+                'canvasId': 'wheelCanvas',
+                'numSegments': 7,
+                'outerRadius': outerRadius,
+                'textFontSize': 18,
+                'textFontFamily': 'verdana',
+                'textFillStyle': 'white',
+                'textAlignment': 'center',
+                'textOrientation': 'horizontal',
+                'segments': [
+                    { 'fillStyle': '#f2a413', 'text': '3-4 Ingredients' },
+                    { 'fillStyle': '#bf0404', 'text': '1-2 Food Groups' },
+                    { 'fillStyle': '#72a603', 'text': 'Skip 1 Food Group' },
+                    { 'fillStyle': '#f2a413', 'text': '8-10 Ingredients' },
+                    { 'fillStyle': '#bf0404', 'text': 'All Food Groups' },
+                    { 'fillStyle': '#f2a413', 'text': '5-7 Ingredients' },
+                    { 'fillStyle': '#bf0404', 'text': '3-4 Food Groups' }
+                ],
+                'animation': {
+                    'type': 'spinToStop',
+                    'duration': 8,
+                    'spins': 8,
+                    'callbackFinished': showResult,
+                    'easing': 'Power4.easeOut'
+                },
+                'pins': {
+                    'number': 0
+                }
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            resultDiv.textContent = 'Spinning...';
+
+            wheel.stopAnimation(false);
+            wheel.rotationAngle = wheel.rotationAngle % 360;
+
+            const stopAt = Math.floor(Math.random() * 360);
+            wheel.animation.stopAngle = stopAt;
+            wheel.startAnimation();
+        }
+
+        function showResult() {
+            const winningSegment = wheel.getIndicatedSegment();
+            resultDiv.textContent = `You landed on: ${winningSegment.text}`;
+            spinBtn.disabled = false;
+            isSpinning = false;
+        }
+
+        window.onload = function () {
+            spinBtn = document.getElementById('spinBtn');
+            resultDiv = document.getElementById('result');
+
+            setupWheel();
+
+            spinBtn.addEventListener('click', spinWheel);
+        };
+
+        let resizeTimer;
+        window.onresize = function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (wheel) {
+                    wheel.clearCanvas();
+                }
+                setupWheel();
+            }, 250);
+        };
+        const vectorLayer = document.getElementById('vectorLayer');
+        const vectorImages = [
+            'static/Vector-1.png',
+            'static/Vector-2.png',
+            'static/Vector-3.png',
+            'static/Vector-4.png',
+            'static/Vector-5.png',
+            'static/Vector.png',
+    ];
+            // Function to place images evenly
+            function placeVectorsEvenly() {
+                const rows = 2; // 2 rows
+                const cols = 4; // 4 columns (2x4 grid for 8 images)
+                const imgWidth = 250;
+                const imgHeight = 250;
+
+                let index = 0;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (index >= vectorImages.length) break;
+
+                        const img = document.createElement('img');
+                        img.src = vectorImages[index];
+
+                        // Compute cell boundaries
+                        const cellWidth = window.innerWidth / cols;
+                        const cellHeight = window.innerHeight / rows;
+
+                        // Random position inside cell
+                        const top = r * cellHeight + Math.random() * (cellHeight - imgHeight);
+                        const left = c * cellWidth + Math.random() * (cellWidth - imgWidth);
+
+                        img.style.top = `${top}px`;
+                        img.style.left = `${left}px`;
+                        img.style.width = `${imgWidth}px`;
+                        img.style.height = `${imgHeight}px`;
+
+                        vectorLayer.appendChild(img);
+                        index++;
+                    }
+                }
+            }
+
+        placeVectorsEvenly();
+    </script>
+
+</body>
+
+</html>
