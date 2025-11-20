@@ -242,13 +242,11 @@
 
         // Challenge blurbs for each wheel segment
         const blurbs = {
-            "3-4 Ingredients": "Focus on simplicity: Craft a dish with only 3–4 key ingredients that truly shine together.",
-            "1-2 Food Groups": "You may only use 1–2 food groups! Creativity counts! Make those choices count.",
-            "Skip 1 Food Group": "You must exclude one full food group: Find clever ways to balance your dish.",
+            "Use All Food Shelves": "Select 1 ingredient from every shelf.",
+            "Skip 1 Food Shelf": "Oils & Vinegars are off limits.",
             "8-10 Ingredients": "You have a full pantry! Use 8–10 ingredients to layer bold, complex flavors.",
-            "All Food Groups": "Balance everything: Include representation from all major food groups in your dish.",
             "5-7 Ingredients": "A sweet spot: use 5–7 ingredients for a balanced, flavourful creation.",
-            "3-4 Food Groups": "Build variety and nutrition: Include 3–4 different food groups in your dish."
+            "Use 3-4 Food Shelves": "Build variety and nutrition: Include 3–4 different food shelf ingredients in your dish."
         };
 
         function setupWheel() {
@@ -261,7 +259,7 @@
 
             wheel = new Winwheel({
                 'canvasId': 'wheelCanvas',
-                'numSegments': 7,
+                'numSegments': 5,
                 'outerRadius': outerRadius,
                 'textFontSize': 18,
                 'textFontFamily': 'verdana',
@@ -269,13 +267,11 @@
                 'textAlignment': 'center',
                 'textOrientation': 'horizontal',
                 'segments': [
-                    { 'fillStyle': '#754668', 'text': '3-4 Ingredients' },
-                    { 'fillStyle': '#72a603', 'text': '1-2 Food Groups' },
-                    { 'fillStyle': '#bf0404', 'text': 'Skip 1 Food Group' },
                     { 'fillStyle': '#754668', 'text': '8-10 Ingredients' },
-                    { 'fillStyle': '#72a603', 'text': 'All Food Groups' },
+                    { 'fillStyle': '#bf0404', 'text': 'All food shelves' },
+                    { 'fillStyle': '#72a603', 'text': 'Skip 1 Food Shelf' },
                     { 'fillStyle': '#754668', 'text': '5-7 Ingredients' },
-                    { 'fillStyle': '#72a603', 'text': '3-4 Food Groups' }
+                    { 'fillStyle': '#72a603', 'text': '3-4 Food Shelves' }
                 ],
                 'animation': {
                     'type': 'spinToStop',
